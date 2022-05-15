@@ -28,7 +28,47 @@ enum dragLineHandlePosition:Int {
 
 let dashedLinePattern: [CGFloat] = [5.0, 5.0]
 let minClickPathWidth = Float(8)
+let defaultMarkerSize = CGFloat(8)
 
+/**
+ * defines the intersection between two dragLines
+ */
+struct intersection {
+    var dragLine1: dragLine
+    var dragLine2: dragLine
+    var markerSize = CGSize(width: defaultMarkerSize, height: defaultMarkerSize)
+    var fillColor = NSColor.textColor
+    
+    // intersection is hidden if one of the dragLines is hidden
+    var isHidden: Bool {
+        if dragLine1.isHidden || dragLine2.isHidden {return true}
+        return false
+    }
+    
+    // the intersection point
+    var point: CGPoint? {
+        if dragLine1.orientation == dragLine2.orientation { return nil }
+        if dragLine1.orientation == .horizontal {
+            return CGPoint(x: dragLine2.viewPosition, y: dragLine1.viewPosition)
+        } else {
+            return CGPoint(x: dragLine1.viewPosition, y: dragLine2.viewPosition)
+        }
+    }
+    
+    var nodePath: NSBezierPath? {
+        get {
+            let path = NSBezierPath()
+            if var pt = self.point {
+                pt.x = pt.x - markerSize.width/2
+                pt.y = pt.y - markerSize.height/2
+                path.appendOval(in: NSRect(origin: pt, size: markerSize) )
+                return path
+            }
+            return nil
+        }
+    }
+}
+// MARK: -
 /**
  * definition for a vertical or horizontal line which represents a value
  * the line can be dragged up/down or left/right to change the value
@@ -50,6 +90,13 @@ class dragLine: NSObject {
     var linePath = NSBezierPath()
     var handlePath = NSBezierPath()
     var clickPath = NSBezierPath()
+    
+    private var _isHidden: Bool = false
+    var isHidden: Bool {
+        get {
+            return _isHidden
+        }
+    }
 
     private var _parentFrame: NSRect
     var parentFrame: NSRect {
@@ -141,16 +188,16 @@ class dragLine: NSObject {
             return toolTip
         }
     }
-    
-    //override
-    
 }
 
+
+// MARK: -
 class graphView: NSView {
     
     var draggedObject = draggedObjectEnum.none
     var draggedLineIndex: Int?
     var dragLineArray: Array<dragLine> = []
+    var intersectionArray: Array<intersection> = []
     
     /*
     let maxYunits = CGFloat(100)
@@ -270,6 +317,7 @@ class graphView: NSView {
     
     override func draw(_ dirtyRect: NSRect) {
         let borderPath = NSBezierPath() //
+        let linePath = NSBezierPath()
         
         // draw border
         borderPath.appendRect(dirtyRect)
@@ -278,10 +326,38 @@ class graphView: NSView {
                 
         // draw all lines and handles
         for dragLine in dragLineArray {
-            dragLine.lineColor.setStroke()
-            dragLine.linePath.stroke()
-            dragLine.handleColor.setStroke()
-            dragLine.handlePath.stroke()
+            if !dragLine.isHidden {
+                dragLine.lineColor.setStroke()
+                dragLine.linePath.stroke()
+                dragLine.handleColor.setStroke()
+                dragLine.handlePath.stroke()
+            }
+        }
+        
+        // draw all intersections
+        for intersection in intersectionArray {
+            if let nodePath = intersection.nodePath {
+                if !intersection.isHidden {
+                    intersection.fillColor.setFill()
+                    nodePath.fill()
+                }
+            }
+        }
+        
+        // draw line between intersections
+        linePath.removeAllPoints()
+        
+        for intersection in intersectionArray {
+            if let pt = intersection.point {
+                if linePath.isEmpty {
+                    linePath.move(to: pt)
+                } else {
+                    linePath.line(to: pt)
+                }
+            }
+            NSColor.textColor.setStroke()
+            linePath.stroke()
+            
         }
     }
     
