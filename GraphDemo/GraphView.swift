@@ -30,6 +30,10 @@ let dashedLinePattern: [CGFloat] = [5.0, 5.0]
 let minClickPathWidth = Float(8)
 let defaultMarkerSize = CGFloat(8)
 
+public func clamp<T>(_ value: T, minValue: T, maxValue: T) -> T where T : Comparable {
+    return min(max(value, minValue), maxValue)
+}
+
 /**
  * defines the intersection between two dragLines
  */
@@ -81,7 +85,9 @@ class dragLine: NSObject {
     
     // not required for init
     var minValueAbsolute = Int(0)   // min value possible in this graph
-    var lineColor = NSColor.textColor
+    var minValueDragLine: dragLine?
+    var maxValueDragLine: dragLine?
+    var lineColor = NSColor.systemGray
     var handleColor =  NSColor.textColor
     
     var valueName = String("")
@@ -115,10 +121,22 @@ class dragLine: NSObject {
             return _intValue
         }
         set (newValue){
-            if newValue <= maxValueAbsolute && newValue >= minValueAbsolute {
-                _intValue = newValue
-                calculatePaths()
+            let oldValue = _intValue
+            // range clamping
+            _intValue = clamp(newValue, minValue: minValueAbsolute, maxValue: maxValueAbsolute)
+            // dynamc limit for min value if required
+            if let minDL = minValueDragLine {
+                if newValue <= minDL.intValue {
+                    _intValue = oldValue
+                }
             }
+            // dynamic limit max value if requried
+            if let maxDL = maxValueDragLine {
+                if newValue >= maxDL.intValue {
+                    _intValue = oldValue
+                }
+            }
+            calculatePaths()
         }
     }
     
@@ -175,10 +193,12 @@ class dragLine: NSObject {
             linePath.move(to: NSPoint(x: CGFloat(0), y: viewPosition))
             linePath.line(to: NSPoint(x: parentFrame.width, y: viewPosition))
             clickPath.appendRect(NSRect(x: CGFloat(0), y: viewPosition-(clickPathWidth/2), width: parentFrame.width, height: clickPathWidth))
+            //print("\(className) \(#function) - \(toolTip) \(linePath)")
         } else {
             linePath.move(to: NSPoint(x: viewPosition, y: CGFloat(0)))
             linePath.line(to: NSPoint(x: viewPosition, y: parentFrame.height))
             clickPath.appendRect(NSRect(x: viewPosition-(clickPathWidth/2), y:CGFloat(0) , width: clickPathWidth, height: parentFrame.height))
+            //print("\(className) \(#function) - \(toolTip) \(linePath)")
         }
     }
     
@@ -261,14 +281,18 @@ class graphView: NSView {
      */
     override func resetCursorRects() {
         //print("\(className) \(#function)")
+        
         for dragLine in dragLineArray {
-            if dragLine.orientation == .horizontal {
-                self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeUpDown)
-            } else {
-                self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeLeftRight)
+            if !dragLine.clickPath.isEmpty {
+                if dragLine.orientation == .horizontal {
+                    self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeUpDown)
+                } else {
+                    self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeLeftRight)
+                }
+                self.addToolTip(dragLine.clickPath.bounds, owner: dragLine, userData: nil)
             }
-            self.addToolTip(dragLine.clickPath.bounds, owner: dragLine, userData: nil)
         }
+        
     }
     
     /**

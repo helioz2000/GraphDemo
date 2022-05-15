@@ -17,28 +17,64 @@ class graphViewController: NSViewController, NSWindowDelegate {
         //print("\(className) \(#function) - \(graphView.frame)")
         //print("\(className) \(#function) - \(view.window!.frame)")
         
-        let line1 = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let line2 = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let line3 = dragLine(orientation: .vertical, handlePos: .bottom, maxAbsoluteValue: 20, parentFrame: view.frame)
-        let line4 = dragLine(orientation: .vertical, handlePos: .bottom, maxAbsoluteValue: 20, parentFrame: view.frame)
-        line1.intValue = 20
-        line1.lineColor = NSColor.systemGray
-        line1.toolTip = "Line 1"
-        line2.intValue = 80
-        line2.lineColor = NSColor.systemGray
-        line2.toolTip = "Line 2"
-        line3.intValue = 17
-        line3.lineColor = NSColor.systemBrown
-        line3.toolTip = "Line 3"
-        line4.intValue = 13
-        line4.lineColor = NSColor.systemBrown
-        line4.toolTip = "Line 4"
-        (view as! graphView).dragLineArray.append(line1)
-        (view as! graphView).dragLineArray.append(line2)
-        (view as! graphView).dragLineArray.append(line3)
-        (view as! graphView).dragLineArray.append(line4)
-        (view as! graphView).intersectionArray.append(intersection(dragLine1: line1, dragLine2: line3))
-        (view as! graphView).intersectionArray.append(intersection(dragLine1: line2, dragLine2: line4))
+        let v = view as! graphView
+        
+        let vert1 = dragLine(orientation: .vertical, handlePos: .bottom, maxAbsoluteValue: 20, parentFrame: view.frame)
+        let vert2 = dragLine(orientation: .vertical, handlePos: .bottom, maxAbsoluteValue: 20, parentFrame: view.frame)
+        let vert3 = dragLine(orientation: .vertical, handlePos: .bottom, maxAbsoluteValue: 20, parentFrame: view.frame)
+        vert1.intValue = 7
+        vert2.intValue = 10
+        vert3.intValue = 13
+        vert1.maxValueDragLine = vert2
+        vert2.minValueDragLine = vert1
+        vert2.maxValueDragLine = vert3
+        vert3.minValueDragLine = vert2
+        vert1.toolTip = "vert1"
+        vert2.toolTip = "vert2"
+        vert3.toolTip = "vert3"
+        
+        let horMax = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
+        let horMin = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
+        let hor1 = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
+        let hor2 = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
+        let hor3 = dragLine(orientation: .horizontal, handlePos: .left, maxAbsoluteValue: 100, parentFrame: view.frame)
+        horMin.intValue = 15
+        hor1.intValue = 25
+        hor2.intValue = 40
+        hor3.intValue = 60
+        horMax.intValue = 90
+        horMin.maxValueDragLine = hor1
+        hor1.minValueDragLine = horMin
+        hor1.maxValueDragLine = hor2
+        hor2.minValueDragLine = hor1
+        hor2.maxValueDragLine = hor3
+        hor3.minValueDragLine = hor2
+        hor3.maxValueDragLine = horMax
+        horMax.minValueDragLine = hor3
+        horMin.lineColor = NSColor.systemRed
+        horMax.lineColor = NSColor.systemRed
+        hor1.lineColor = NSColor.systemBlue
+        hor2.lineColor = NSColor.systemBlue
+        hor3.lineColor = NSColor.systemBlue
+        horMin.toolTip = "Min Speed"
+        horMax.toolTip = "Max Speed"
+        v.dragLineArray.append(vert1)
+        v.dragLineArray.append(vert2)
+        v.dragLineArray.append(vert3)
+        v.dragLineArray.append(horMin)
+        v.dragLineArray.append(hor1)
+        v.dragLineArray.append(hor2)
+        v.dragLineArray.append(hor3)
+        v.dragLineArray.append(horMax)
+
+        //print("\(className) \(#function): \((view as! graphView).dragLineArray.count)")
+        
+        let i1 = intersection(dragLine1: vert1, dragLine2: hor2)
+        let i2 = intersection(dragLine1: vert2, dragLine2: hor3)
+        let i3 = intersection(dragLine1: vert3, dragLine2: horMax)
+        v.intersectionArray.append(i1)
+        v.intersectionArray.append(i2)
+        v.intersectionArray.append(i3)
     }
     
     override func viewWillAppear() {
