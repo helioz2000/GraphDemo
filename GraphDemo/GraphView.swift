@@ -33,7 +33,7 @@ let minClickPathWidth = Float(8)
  * definition for a vertical or horizontal line which represents a value
  * the line can be dragged up/down or left/right to change the value
  */
-class dragLine {
+class dragLine: NSObject {
     // requried for init
     let orientation: dragLineOrientation
     let handlePosition: dragLineHandlePosition
@@ -45,6 +45,7 @@ class dragLine {
     var handleColor =  NSColor.textColor
     
     var valueName = String("")
+    var toolTip = String("")
     var viewPosition = CGFloat(0)   // the vertical/horizontal position in view coordinates
     var linePath = NSBezierPath()
     var handlePath = NSBezierPath()
@@ -133,6 +134,16 @@ class dragLine {
             clickPath.appendRect(NSRect(x: viewPosition-(clickPathWidth/2), y:CGFloat(0) , width: clickPathWidth, height: parentFrame.height))
         }
     }
+    
+    // this function delivers the tooltip to NSView
+    override var description: String {
+        get {
+            return toolTip
+        }
+    }
+    
+    //override
+    
 }
 
 class graphView: NSView {
@@ -209,6 +220,7 @@ class graphView: NSView {
             } else {
                 self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeLeftRight)
             }
+            self.addToolTip(dragLine.clickPath.bounds, owner: dragLine, userData: nil)
         }
     }
     

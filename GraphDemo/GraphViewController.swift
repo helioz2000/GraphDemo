@@ -22,10 +22,13 @@ class graphViewController: NSViewController, NSWindowDelegate {
         let line3 = dragLine(orientation: .vertical, handlePos: .bottom, maxAbsoluteValue: 20, parentFrame: view.frame)
         line1.intValue = 20
         line1.lineColor = NSColor.systemPink
+        line1.toolTip = "Line 1"
         line2.intValue = 80
         line2.lineColor = NSColor.systemBlue
+        line2.toolTip = "Line 2"
         line3.intValue = 10
         line3.lineColor = NSColor.systemGreen
+        line3.toolTip = "Line 3"
         (view as! graphView).dragLineArray.append(line1)
         (view as! graphView).dragLineArray.append(line2)
         (view as! graphView).dragLineArray.append(line3)
