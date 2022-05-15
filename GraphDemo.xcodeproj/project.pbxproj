@@ -13,6 +13,8 @@
 		24F964572830523800803F2F /* GraphDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F964562830523800803F2F /* GraphDemoTests.swift */; };
 		24F964612830523800803F2F /* GraphDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F964602830523800803F2F /* GraphDemoUITests.swift */; };
 		24F964632830523800803F2F /* GraphDemoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F964622830523800803F2F /* GraphDemoUITestsLaunchTests.swift */; };
+		24F964702830551500803F2F /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F9646F2830551500803F2F /* GraphView.swift */; };
+		24F964722830554600803F2F /* GraphViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F964712830554600803F2F /* GraphViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +45,8 @@
 		24F9645C2830523800803F2F /* GraphDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		24F964602830523800803F2F /* GraphDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphDemoUITests.swift; sourceTree = "<group>"; };
 		24F964622830523800803F2F /* GraphDemoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphDemoUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		24F9646F2830551500803F2F /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		24F964712830554600803F2F /* GraphViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +98,8 @@
 			isa = PBXGroup;
 			children = (
 				24F964462830523700803F2F /* AppDelegate.swift */,
+				24F9646F2830551500803F2F /* GraphView.swift */,
+				24F964712830554600803F2F /* GraphViewController.swift */,
 				24F964482830523800803F2F /* Assets.xcassets */,
 				24F9644A2830523800803F2F /* MainMenu.xib */,
 				24F9644D2830523800803F2F /* GraphDemo.entitlements */,
@@ -248,7 +254,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24F964722830554600803F2F /* GraphViewController.swift in Sources */,
 				24F964472830523700803F2F /* AppDelegate.swift in Sources */,
+				24F964702830551500803F2F /* GraphView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
