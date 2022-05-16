@@ -19,7 +19,7 @@ enum dragLineOrientation:Int {
     case vertical
 }
 
-enum dragLineHandlePosition:Int {
+enum dragLineOrigin:Int {
     case left = 0
     case right
     case top
@@ -80,8 +80,9 @@ struct intersection {
 class dragLine: NSObject {
     // requried for init
     let orientation: dragLineOrientation
-    let handlePosition: dragLineHandlePosition
+    let origin: dragLineOrigin
     var maxValueAbsolute: Int     // max value possible in this graph
+    var lengthFactor: Double       // 1.0 = 100%
     
     // not required for init
     var minValueAbsolute = Int(0)   // min value possible in this graph
@@ -89,6 +90,8 @@ class dragLine: NSObject {
     var maxValueDragLine: dragLine?
     var lineColor = NSColor.systemGray
     var handleColor =  NSColor.textColor
+    
+    
     
     var valueName = String("")
     var toolTip = String("")
@@ -162,9 +165,10 @@ class dragLine: NSObject {
         }
     }
     
-    init(orientation:dragLineOrientation, handlePos:dragLineHandlePosition, maxAbsoluteValue:Int, parentFrame: NSRect) {
+    init(orientation:dragLineOrientation, origin:dragLineOrigin, lengthFactor:Double, maxAbsoluteValue:Int, parentFrame: NSRect) {
         self.orientation = orientation
-        self.handlePosition = handlePos
+        self.origin = origin
+        self.lengthFactor = lengthFactor
         self.maxValueAbsolute = maxAbsoluteValue
         self._parentFrame = parentFrame
     }
@@ -185,19 +189,36 @@ class dragLine: NSObject {
     }
     
     private func calculatePaths() {
+        var lineStart = NSPoint()
+        var lineFinish = NSPoint()
         viewPosition = CGFloat( Float(intValue) * pointsPerUnit )  // update the line positoion
         linePath.removeAllPoints()
         clickPath.removeAllPoints()
         linePath.setLineDash(dashedLinePattern, count: 2, phase: 0.0)
         if orientation == .horizontal {
-            linePath.move(to: NSPoint(x: CGFloat(0), y: viewPosition))
-            linePath.line(to: NSPoint(x: parentFrame.width, y: viewPosition))
-            clickPath.appendRect(NSRect(x: CGFloat(0), y: viewPosition-(clickPathWidth/2), width: parentFrame.width, height: clickPathWidth))
+            if origin == .left { // horizontal left
+                lineStart = NSPoint(x: CGFloat(0), y: viewPosition)
+                lineFinish = NSPoint(x: parentFrame.width * lengthFactor, y: viewPosition)
+            } else {    // horizontal right
+                lineStart = NSPoint(x: parentFrame.width - (parentFrame.width * lengthFactor), y: viewPosition)
+                lineFinish = NSPoint(x: parentFrame.width, y: viewPosition)
+            }
+            linePath.move(to: lineStart)
+            linePath.line(to: lineFinish)
+            clickPath.appendRect(NSRect(x: lineStart.x, y: viewPosition-(clickPathWidth/2), width: parentFrame.width * lengthFactor, height: clickPathWidth) )
+            //clickPath.appendRect(NSRect(x: CGFloat(0), y: viewPosition-(clickPathWidth/2), width: parentFrame.width, height: clickPathWidth))
             //print("\(className) \(#function) - \(toolTip) \(linePath)")
         } else {
-            linePath.move(to: NSPoint(x: viewPosition, y: CGFloat(0)))
-            linePath.line(to: NSPoint(x: viewPosition, y: parentFrame.height))
-            clickPath.appendRect(NSRect(x: viewPosition-(clickPathWidth/2), y:CGFloat(0) , width: clickPathWidth, height: parentFrame.height))
+            if origin == .bottom { // vertical bottom
+                lineStart = NSPoint(x: viewPosition, y: CGFloat(0))
+                lineFinish = NSPoint(x: viewPosition, y: parentFrame.height * lengthFactor)
+            } else {    // vertical top
+                lineStart = NSPoint(x: viewPosition, y: parentFrame.height-(parentFrame.height * lengthFactor))
+                lineFinish = NSPoint(x: viewPosition, y: parentFrame.height)
+            }
+            linePath.move(to: lineStart)
+            linePath.line(to: lineFinish)
+            clickPath.appendRect(NSRect(x: viewPosition-(clickPathWidth/2), y:lineStart.y , width: clickPathWidth, height: parentFrame.height * lengthFactor))
             //print("\(className) \(#function) - \(toolTip) \(linePath)")
         }
     }
