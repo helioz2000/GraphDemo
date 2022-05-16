@@ -91,22 +91,24 @@ class dragLine: NSObject {
     var lineColor = NSColor.systemGray
     var handleColor =  NSColor.textColor
     
-    
-    
     var valueName = String("")
     var toolTip = String("")
     var viewPosition = CGFloat(0)   // the vertical/horizontal position in view coordinates
     var linePath = NSBezierPath()
     var handlePath = NSBezierPath()
     var clickPath = NSBezierPath()
+    var isHidden: Bool = false
     
-    private var _isHidden: Bool = false
-    var isHidden: Bool {
+    var cursor: NSCursor {
         get {
-            return _isHidden
+            if orientation == .horizontal {
+                return NSCursor.resizeUpDown
+            } else {
+                return NSCursor.resizeLeftRight
+            }
         }
     }
-
+    
     private var _parentFrame: NSRect
     var parentFrame: NSRect {
         get {
@@ -145,11 +147,11 @@ class dragLine: NSObject {
     
     var clickPathWidth: CGFloat {
         get {
-            if pointsPerUnit < (minClickPathWidth/2) {
+            //if pointsPerUnit < (minClickPathWidth/2) {
                 return CGFloat( minClickPathWidth )
-            } else {
-                return CGFloat(pointsPerUnit * 2)
-            }
+            //} else {
+            //    return CGFloat(pointsPerUnit * 2)
+            //}
         }
     }
     
@@ -236,7 +238,7 @@ class dragLine: NSObject {
 class graphView: NSView {
     
     var draggedObject = draggedObjectEnum.none
-    var draggedLineIndex: Int?
+    var draggedLineIndex: Int?      // nil when not dragging
     var dragLineArray: Array<dragLine> = []
     var intersectionArray: Array<intersection> = []
     
@@ -281,6 +283,7 @@ class graphView: NSView {
     override func mouseUp(with event: NSEvent) {
         //print("\(className) \(#function) - ")
         draggedLineIndex =  nil
+        self.window?.invalidateCursorRects(for: self)   // will invoke resterCursorRects
     }
     
     override func mouseDragged(with event: NSEvent) {
@@ -299,21 +302,34 @@ class graphView: NSView {
     
     /**
      * invoked by the system when cursor rects need updating
+     * While not dragging the cursor changes when in the click rectangle around line
+     * During drag operation the rectangle is expanded to the whole parent frame to prevent
+     * the cursor from reverting back to an arrow even when outside the click rectangle
+     * which occurs when the gap between int values on the axis scale exceeeds the click rectangle
      */
     override func resetCursorRects() {
         //print("\(className) \(#function)")
+        var draggedLine: dragLine?      // not nil during drag operation
+        var cursorRect = NSRect()
+        
+        //
+        if let dlIdx = draggedLineIndex {
+            draggedLine = dragLineArray[dlIdx]
+        }
         
         for dragLine in dragLineArray {
-            if !dragLine.clickPath.isEmpty {
-                if dragLine.orientation == .horizontal {
-                    self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeUpDown)
-                } else {
-                    self.addCursorRect(dragLine.clickPath.bounds, cursor: .resizeLeftRight)
+            if !dragLine.clickPath.isEmpty && !dragLine.isHidden {
+                cursorRect = dragLine.clickPath.bounds
+                if let dl = draggedLine {
+                    if dragLine == dl {
+                        // prevent cursor change while dragging is active
+                        cursorRect = dragLine.parentFrame
+                    }
                 }
+                self.addCursorRect(cursorRect, cursor: dragLine.cursor)
                 self.addToolTip(dragLine.clickPath.bounds, owner: dragLine, userData: nil)
             }
         }
-        
     }
     
     /**
