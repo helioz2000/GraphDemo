@@ -81,11 +81,13 @@ class dragLine: NSObject {
     // requried for init
     let orientation: dragLineOrientation
     let origin: dragLineOrigin
-    var maxValueAbsolute: Int     // max value possible in this graph
+    var axisMax: Int                // axis max value
     var lengthFactor: Double       // 1.0 = 100%
     
     // not required for init
-    var minValueAbsolute = Int(0)   // min value possible in this graph
+    var axisMin = Int(0)        // axis min value
+    var minValue = Int(0)
+    var maxValue = Int(0)
     var minValueDragLine: dragLine?
     var maxValueDragLine: dragLine?
     var lineColor = NSColor.systemGray
@@ -128,7 +130,8 @@ class dragLine: NSObject {
         set (newValue){
             let oldValue = _intValue
             // range clamping
-            _intValue = clamp(newValue, minValue: minValueAbsolute, maxValue: maxValueAbsolute)
+            let tmpValue = clamp(newValue, minValue: minValue, maxValue: maxValue)
+            _intValue = clamp(tmpValue, minValue: axisMin, maxValue: axisMax)
             // dynamc limit for min value if required
             if let minDL = minValueDragLine {
                 if newValue <= minDL.intValue {
@@ -159,19 +162,20 @@ class dragLine: NSObject {
         get {
             var retVal = Float(0)
             if orientation == .horizontal {
-                retVal = Float(parentFrame.height) / Float(maxValueAbsolute)
+                retVal = Float(parentFrame.height) / Float(axisMax)
             } else {
-                retVal = Float(parentFrame.width) / Float(maxValueAbsolute)
+                retVal = Float(parentFrame.width) / Float(axisMax)
             }
             return retVal
         }
     }
     
-    init(orientation:dragLineOrientation, origin:dragLineOrigin, lengthFactor:Double, maxAbsoluteValue:Int, parentFrame: NSRect) {
+    init(orientation:dragLineOrientation, origin:dragLineOrigin, lengthFactor:Double, axisMax:Int, parentFrame: NSRect) {
         self.orientation = orientation
         self.origin = origin
         self.lengthFactor = lengthFactor
-        self.maxValueAbsolute = maxAbsoluteValue
+        self.axisMax = axisMax
+        self.maxValue = axisMax
         self._parentFrame = parentFrame
     }
     
@@ -294,11 +298,15 @@ class graphView: NSView {
         // calculate new value
         dragLineArray[draggedIndex].intValue = dragLineArray[draggedIndex].intValueForPosition(locationInView)
         needsDisplay = true
-        self.window?.invalidateCursorRects(for: self)   // will invoke resterCursorRects
+        invalidateCursor()
         //print("\(className) \(#function) - \(dragLineArray[draggedIndex].intValue)")
     }
     
     // MARK: - Mouse tracking
+    
+    func invalidateCursor() {
+        self.window?.invalidateCursorRects(for: self)   // will invoke resetCursorRects
+    }
     
     /**
      * invoked by the system when cursor rects need updating

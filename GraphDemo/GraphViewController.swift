@@ -11,111 +11,20 @@ import AppKit
 
 class graphViewController: NSViewController, NSWindowDelegate {
     
+    @IBOutlet var startStepsPoputton: NSPopUpButton!
+    @IBOutlet var stopStepsPoputton: NSPopUpButton!
+    @objc dynamic var startSteps = Int(3)
+    @objc dynamic var stopSteps = Int(3)
     
     override func viewDidLoad() {
         //print("\(className) \(#function) - \(self.view.frame)")
         //print("\(className) \(#function) - \(graphView.frame)")
         //print("\(className) \(#function) - \(view.window!.frame)")
         
-        let v = view as! graphView
-        let timeScale = Int(20)
+        startStepsPoputton.selectItem(withTag: startSteps)
+        stopStepsPoputton.selectItem(withTag: stopSteps)
         
-        let rightV = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        let leftV = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        leftV.intValue = 0
-        rightV.intValue = timeScale
-        leftV.isHidden = true
-        rightV.isHidden = true
-        let start1v = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        let start2v = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        let start3v = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        let stop1v = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        let stop2v = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        let stop3v = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, maxAbsoluteValue: timeScale, parentFrame: view.frame)
-        start1v.intValue = 2
-        start2v.intValue = 4
-        start3v.intValue = 6
-        stop1v.intValue = timeScale - 6
-        stop2v.intValue = timeScale - 4
-        stop3v.intValue = timeScale - 2
-        start1v.maxValueDragLine = start2v
-        start2v.minValueDragLine = start1v
-        start2v.maxValueDragLine = start3v
-        start3v.minValueDragLine = start2v
-        start1v.toolTip = "start1v"
-        start2v.toolTip = "start2v"
-        start3v.toolTip = "start3v"
-        
-        let horMax = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 1.0, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let horMin = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 1.0, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let start1 = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 0.45, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let start2 = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 0.45, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let start3 = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 0.45, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let stop1 = dragLine(orientation: .horizontal, origin: .right, lengthFactor: 0.45, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let stop2 = dragLine(orientation: .horizontal, origin: .right, lengthFactor: 0.45, maxAbsoluteValue: 100, parentFrame: view.frame)
-        let stop3 = dragLine(orientation: .horizontal, origin: .right, lengthFactor: 0.45, maxAbsoluteValue: 100, parentFrame: view.frame)
-        
-        horMin.intValue = 15
-        horMax.intValue = 90
-        start1.intValue = 30
-        start2.intValue = 60
-        start3.intValue = 80
-        stop1.intValue = 80
-        stop2.intValue = 60
-        stop3.intValue = 30
-        
-        horMin.maxValueDragLine = start1
-        start1.minValueDragLine = horMin
-        start1.maxValueDragLine = start2
-        start2.minValueDragLine = start1
-        start2.maxValueDragLine = start3
-        start3.minValueDragLine = start2
-        start3.maxValueDragLine = horMax
-        horMax.minValueDragLine = start3
-        horMin.lineColor = NSColor.systemRed
-        horMax.lineColor = NSColor.systemRed
-        start1.lineColor = NSColor.systemGreen
-        start2.lineColor = NSColor.systemGreen
-        start3.lineColor = NSColor.systemGreen
-        stop1.lineColor = NSColor.systemBlue
-        stop2.lineColor = NSColor.systemBlue
-        stop3.lineColor = NSColor.systemBlue
-        horMin.toolTip = "Min Speed"
-        horMax.toolTip = "Max Speed"
-        v.dragLineArray.append(start1v)
-        v.dragLineArray.append(start2v)
-        v.dragLineArray.append(start3v)
-        v.dragLineArray.append(stop1v)
-        v.dragLineArray.append(stop2v)
-        v.dragLineArray.append(stop3v)
-        v.dragLineArray.append(horMin)
-        v.dragLineArray.append(start1)
-        v.dragLineArray.append(start2)
-        v.dragLineArray.append(start3)
-        v.dragLineArray.append(stop1)
-        v.dragLineArray.append(stop2)
-        v.dragLineArray.append(stop3)
-        v.dragLineArray.append(horMax)
-        v.dragLineArray.append(leftV)
-        v.dragLineArray.append(rightV)
-
-        //print("\(className) \(#function): \((view as! graphView).dragLineArray.count)")
-        let i1 = intersection(dragLine1: leftV, dragLine2: start1)
-        let i2 = intersection(dragLine1: start1v, dragLine2: start2)
-        let i3 = intersection(dragLine1: start2v, dragLine2: start3)
-        let i4 = intersection(dragLine1: start3v, dragLine2: horMax)
-        let i5 = intersection(dragLine1: stop1v, dragLine2: horMax)
-        let i6 = intersection(dragLine1: stop2v, dragLine2: stop1)
-        let i7 = intersection(dragLine1: stop3v, dragLine2: stop2)
-        let i8 = intersection(dragLine1: rightV, dragLine2: stop3)
-        v.intersectionArray.append(i1)
-        v.intersectionArray.append(i2)
-        v.intersectionArray.append(i3)
-        v.intersectionArray.append(i4)
-        v.intersectionArray.append(i5)
-        v.intersectionArray.append(i6)
-        v.intersectionArray.append(i7)
-        v.intersectionArray.append(i8)
+        setup()
     }
     
     override func viewWillAppear() {
@@ -123,5 +32,166 @@ class graphViewController: NSViewController, NSWindowDelegate {
     }
     
     override func viewWillLayout() {
+    }
+    
+    @IBAction func startStepsChanged(_ sender: NSPopUpButton) {
+        startSteps = sender.selectedTag()
+        setup()
+    }
+    
+    @IBAction func stopStepsChanged(_ sender: NSPopUpButton) {
+        stopSteps = sender.selectedTag()
+        setup()
+    }
+    
+    // MARK: - Functional Implementation
+    
+    func setup () {
+        let v = view as! graphView
+        let timeScale = Int(20)
+        let horLengthFactor = 0.45
+        
+        var startLinesV: Array<dragLine> = []
+        var stopLinesV: Array<dragLine> = []
+        var startLinesH: Array<dragLine> = []
+        var stopLinesH: Array<dragLine> = []
+        var intersections: Array<intersection> = []
+        
+        v.dragLineArray.removeAll()
+        
+        let rightV = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame)
+        let leftV = dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame)
+        leftV.intValue = 0
+        rightV.intValue = timeScale
+        leftV.isHidden = true
+        rightV.isHidden = true
+        
+        let horMax = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 1.0, axisMax: 100, parentFrame: view.frame)
+        let horMin = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 1.0, axisMax: 100, parentFrame: view.frame)
+        horMin.intValue = 15
+        horMax.intValue = 90
+        horMin.lineColor = NSColor.systemRed
+        horMax.lineColor = NSColor.systemRed
+        horMin.toolTip = "Min Power"
+        horMax.toolTip = "Max Power"
+        
+        /*
+        horMin.maxValueDragLine = startLinesH[0]
+        horMax.minValueDragLine = startLinesH[2]
+        */
+        
+        startLinesV.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
+        startLinesV[0].intValue = 2
+        startLinesV[0].maxValue = Int(Double(timeScale) * horLengthFactor)
+        startLinesV[0].toolTip = "Start Time 1"
+        
+        startLinesH.append( dragLine(orientation: .horizontal, origin: .left, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )
+        startLinesH[0].intValue = 30
+        startLinesH[0].toolTip = "Start Power 1"
+        startLinesH[0].lineColor = NSColor.systemGreen
+        startLinesH[0].minValueDragLine = horMin
+        intersections.append( intersection(dragLine1: leftV, dragLine2: startLinesH[0]) )
+        intersections.append( intersection(dragLine1: startLinesV[0], dragLine2: horMax) )
+        
+        if startSteps > 1 {
+            startLinesV.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
+            startLinesV[1].intValue = 4
+            startLinesV[1].maxValue = startLinesV[0].maxValue
+            startLinesV[1].toolTip = "Start Time 2"
+            startLinesV[0].maxValueDragLine = startLinesV[1]
+            startLinesV[1].minValueDragLine = startLinesV[0]
+            startLinesH.append( dragLine(orientation: .horizontal, origin: .left, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )
+            startLinesH[1].intValue = 60
+            startLinesH[1].toolTip = "Start Power 2"
+            startLinesH[1].lineColor = NSColor.systemGreen
+            startLinesH[0].maxValueDragLine = startLinesH[1]
+            startLinesH[1].minValueDragLine = startLinesH[0]
+            intersections.remove(at: intersections.count-1)
+            intersections.append( intersection(dragLine1: startLinesV[0], dragLine2: startLinesH[1]) )
+            intersections.append( intersection(dragLine1: startLinesV[1], dragLine2: horMax))
+        }
+        
+        if startSteps > 2 {
+            startLinesV.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
+            startLinesV[2].intValue = 6
+            startLinesV[2].maxValue = startLinesV[1].maxValue
+            startLinesV[2].toolTip = "start time 3"
+            startLinesV[1].maxValueDragLine = startLinesV[2]
+            startLinesV[2].minValueDragLine = startLinesV[1]
+            startLinesH.append( dragLine(orientation: .horizontal, origin: .left, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )
+            startLinesH[2].intValue = 80
+            startLinesH[2].toolTip = "Start Power 3"
+            startLinesH[2].lineColor = NSColor.systemGreen
+            startLinesH[1].maxValueDragLine = startLinesH[2]
+            startLinesH[2].minValueDragLine = startLinesH[1]
+            startLinesH[2].maxValueDragLine = horMax
+            intersections.remove(at: intersections.count-1)
+            intersections.append( intersection(dragLine1: startLinesV[1], dragLine2: startLinesH[2]) )
+            intersections.append( intersection(dragLine1: startLinesV[2], dragLine2: horMax) )
+        }
+        
+        stopLinesV.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
+        stopLinesV[0].intValue = timeScale - 6
+        stopLinesV[0].minValue = timeScale - Int(Double(timeScale) * horLengthFactor)
+        stopLinesV[0].toolTip = "Stop Time 1"
+        stopLinesH.append( dragLine(orientation: .horizontal, origin: .right, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )
+        stopLinesH[0].intValue = 80
+        stopLinesH[0].toolTip = "Stop Power 1"
+        stopLinesH[0].lineColor = NSColor.systemBlue
+        stopLinesH[0].maxValueDragLine = horMax
+        intersections.append( intersection(dragLine1: stopLinesV[0], dragLine2: horMax) )
+        intersections.append( intersection(dragLine1: rightV, dragLine2: stopLinesH[0]) )
+        
+        if stopSteps > 1 {
+            stopLinesV.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
+            stopLinesV[1].intValue = timeScale - 4
+            stopLinesV[1].minValue = stopLinesV[0].minValue
+            stopLinesV[1].toolTip = "Stop Time 2"
+            stopLinesV[0].maxValueDragLine = stopLinesV[1]
+            stopLinesV[1].minValueDragLine = stopLinesV[0]
+            stopLinesH.append( dragLine(orientation: .horizontal, origin: .right, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )
+            stopLinesH[1].intValue = 60
+            stopLinesH[1].toolTip = "Stop Power 2"
+            stopLinesH[1].lineColor = NSColor.systemBlue
+            stopLinesH[0].minValueDragLine = stopLinesH[1]
+            stopLinesH[1].maxValueDragLine = stopLinesH[0]
+            intersections.remove(at: intersections.count-1)
+            intersections.append( intersection(dragLine1: stopLinesV[1], dragLine2: stopLinesH[0]) )
+            intersections.append( intersection(dragLine1: rightV, dragLine2: stopLinesH[1]) )
+        }
+        
+        if stopSteps > 2 {
+            stopLinesV.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
+            stopLinesV[2].intValue = timeScale - 2
+            stopLinesV[2].minValue = stopLinesV[1].minValue
+            stopLinesV[2].toolTip = "Stop Time 3"
+            stopLinesV[1].maxValueDragLine = stopLinesV[2]
+            stopLinesV[2].minValueDragLine = stopLinesV[1]
+            stopLinesH.append( dragLine(orientation: .horizontal, origin: .right, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )
+            stopLinesH[2].intValue = 30
+            stopLinesH[2].toolTip = "Stop Power 3"
+            stopLinesH[2].lineColor = NSColor.systemBlue
+            stopLinesH[1].minValueDragLine = stopLinesH[2]
+            stopLinesH[2].maxValueDragLine = stopLinesH[1]
+            stopLinesH[2].minValueDragLine = horMin
+            intersections.remove(at: intersections.count-1)
+            intersections.append( intersection(dragLine1: stopLinesV[2], dragLine2: stopLinesH[1]) )
+            intersections.append( intersection(dragLine1: rightV, dragLine2: stopLinesH[2]) )
+        }
+
+        v.dragLineArray += startLinesV
+        v.dragLineArray += stopLinesV
+        v.dragLineArray += startLinesH
+        v.dragLineArray += stopLinesH
+        v.dragLineArray.append(horMin)
+        v.dragLineArray.append(horMax)
+        v.dragLineArray.append(leftV)
+        v.dragLineArray.append(rightV)
+
+        v.intersectionArray.removeAll()
+        v.intersectionArray += intersections
+
+        v.needsDisplay = true
+        v.invalidateCursor()
     }
 }
