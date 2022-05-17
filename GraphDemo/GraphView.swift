@@ -242,9 +242,25 @@ class dragLine: NSObject {
 class graphView: NSView {
     
     var draggedObject = draggedObjectEnum.none
-    var draggedLineIndex: Int?      // nil when not dragging
     var dragLineArray: Array<dragLine> = []
     var intersectionArray: Array<intersection> = []
+    @objc dynamic var observableDragLineIndex: NSNumber?
+    @objc dynamic var observableDraggedValue = NSNumber(value: 0)
+    
+    var _draggedLineIndex: Int?
+    var draggedLineIndex: Int? {
+        get {
+            return _draggedLineIndex
+        }
+        set (newValue) {
+            _draggedLineIndex = newValue
+            if let i = _draggedLineIndex {
+                observableDragLineIndex = NSNumber(value: i)
+            } else {
+                observableDragLineIndex = nil
+            }
+        }
+    }
     
     /*
     let maxYunits = CGFloat(100)
@@ -266,6 +282,8 @@ class graphView: NSView {
     var thePath = NSBezierPath()
     var minPowerClickPath = NSBezierPath()
     */
+    
+    
     // MARK: - Mouse up/down functions
     
     override func mouseDown(with event: NSEvent) {
@@ -280,7 +298,6 @@ class graphView: NSView {
                 return
             }
         }
-        
         //super.mouseDown(with: event)
     }
     
@@ -297,6 +314,7 @@ class graphView: NSView {
         guard let draggedIndex = draggedLineIndex else { return }
         // calculate new value
         dragLineArray[draggedIndex].intValue = dragLineArray[draggedIndex].intValueForPosition(locationInView)
+        observableDraggedValue = NSNumber(value: dragLineArray[draggedIndex].intValue)
         needsDisplay = true
         invalidateCursor()
         //print("\(className) \(#function) - \(dragLineArray[draggedIndex].intValue)")

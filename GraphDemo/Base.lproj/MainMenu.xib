@@ -21,6 +21,7 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <viewController id="I57-cN-N8s" customClass="graphViewController" customModule="GraphDemo" customModuleProvider="target">
             <connections>
+                <outlet property="infoTextField" destination="Xs0-LG-gdC" id="XkJ-Qp-IM9"/>
                 <outlet property="startStepsPoputton" destination="Qvg-yK-UO9" id="6qW-BW-Att"/>
                 <outlet property="stopStepsPoputton" destination="vXQ-WR-3Kt" id="PMS-u9-7e5"/>
                 <outlet property="view" destination="lC2-UK-x5M" id="8h6-IL-glL"/>
@@ -737,6 +738,15 @@
                             <action selector="stopStepsChanged:" target="I57-cN-N8s" id="Mc9-Zb-hX3"/>
                         </connections>
                     </popUpButton>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xs0-LG-gdC">
+                        <rect key="frame" x="190" y="325" width="120" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Label" id="bx7-dl-h3i">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <point key="canvasLocation" x="200" y="400"/>

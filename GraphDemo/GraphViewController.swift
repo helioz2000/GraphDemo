@@ -15,6 +15,10 @@ class graphViewController: NSViewController, NSWindowDelegate {
     @IBOutlet var stopStepsPoputton: NSPopUpButton!
     @objc dynamic var startSteps = Int(3)
     @objc dynamic var stopSteps = Int(3)
+    @IBOutlet var infoTextField:NSTextField!
+    
+    var kvoDragLineToken: NSKeyValueObservation?
+    var kvoDraggedValueToken:  NSKeyValueObservation?
     
     override func viewDidLoad() {
         //print("\(className) \(#function) - \(self.view.frame)")
@@ -24,7 +28,30 @@ class graphViewController: NSViewController, NSWindowDelegate {
         startStepsPoputton.selectItem(withTag: startSteps)
         stopStepsPoputton.selectItem(withTag: stopSteps)
         
+        // observe line dragging
+        if let v = view as? graphView {
+            kvoDragLineToken = v.observe(\.observableDragLineIndex, options: .new) { (gView, change) in
+                if let index = change.newValue {
+                    if index == nil {
+                        self.infoTextField.isHidden = true
+                    } else {
+                        self.infoTextField.isHidden = false
+                        self.infoTextField.stringValue = String("\(gView.dragLineArray[Int(truncating: index!)].toolTip): \(gView.dragLineArray[Int(truncating: index!)].intValue)")
+                    }
+                }
+            }
+            
+            kvoDraggedValueToken = v.observe(\.observableDraggedValue, options: .new) { (gView, change) in
+                if let dlIndex = gView.draggedLineIndex {
+                    self.infoTextField.stringValue = String("\(gView.dragLineArray[dlIndex].toolTip): \(gView.dragLineArray[dlIndex].intValue)")
+                }
+            }
+        }
         setup()
+    }
+    
+    deinit {
+        kvoDragLineToken?.invalidate()
     }
     
     override func viewWillAppear() {
