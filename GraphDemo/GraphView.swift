@@ -241,6 +241,7 @@ class dragLine: NSObject {
 // MARK: -
 class graphView: NSView {
     
+    var userInteraction = true
     var draggedObject = draggedObjectEnum.none
     var dragLineArray: Array<dragLine> = []
     var intersectionArray: Array<intersection> = []
@@ -287,6 +288,10 @@ class graphView: NSView {
     // MARK: - Mouse up/down functions
     
     override func mouseDown(with event: NSEvent) {
+        if !userInteraction {
+            super.mouseDown(with: event)
+            return
+        }
         //print("\(className) \(#function) \(event.locationInWindow)")
         // mouse location is relative to window, convert to this view
         draggedLineIndex =  nil
@@ -298,17 +303,24 @@ class graphView: NSView {
                 return
             }
         }
-        //super.mouseDown(with: event)
     }
     
     override func mouseUp(with event: NSEvent) {
         //print("\(className) \(#function) - ")
+        if !userInteraction {
+            super.mouseDown(with: event)
+            return
+        }
         draggedLineIndex =  nil
         self.window?.invalidateCursorRects(for: self)   // will invoke resterCursorRects
     }
     
     override func mouseDragged(with event: NSEvent) {
         //print("\(className) \(#function)")
+        if !userInteraction {
+            super.mouseDown(with: event)
+            return
+        }
         let locationInView = superview!.convert(event.locationInWindow, to: self)
         // do we have a valid drage line index?
         guard let draggedIndex = draggedLineIndex else { return }
@@ -335,6 +347,10 @@ class graphView: NSView {
      */
     override func resetCursorRects() {
         //print("\(className) \(#function)")
+        if !userInteraction {
+            super.resetCursorRects()
+            return
+        }
         var draggedLine: dragLine?      // not nil during drag operation
         var cursorRect = NSRect()
         
@@ -397,6 +413,7 @@ class graphView: NSView {
      * Performs re-calculation of all values affected when the view size has changed
      */
     func viewSizeChange() {
+        print("\(className) \(#function)")
         for dragLine in dragLineArray {
             dragLine.parentFrame = self.frame
         }
