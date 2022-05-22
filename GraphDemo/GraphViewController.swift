@@ -19,7 +19,8 @@ class graphViewController: NSViewController, NSWindowDelegate {
     @objc dynamic var stopSteps = Int(3)
     
     var kvoDragLineToken: NSKeyValueObservation?
-    var kvoDraggedValueToken:  NSKeyValueObservation?
+    var kvoDraggedValueToken: NSKeyValueObservation?
+    //var kvoValueChangeToken: NSKeyValueObservation?
     
     var startTimeLines: Array<dragLine> = []
     var stopTimeLines: Array<dragLine> = []
@@ -33,6 +34,8 @@ class graphViewController: NSViewController, NSWindowDelegate {
     var stopTime: Array<Int> = [2, 1, 1]
     var startPower: Array<Int> = [30, 50, 80]
     var stopPower: Array<Int> = [80, 60, 20]
+    var minPower = Int(15)
+    var maxPower = Int(95)
     
     override func viewDidLoad() {
         //print("\(className) \(#function) - \(self.view.frame)")
@@ -62,12 +65,17 @@ class graphViewController: NSViewController, NSWindowDelegate {
                     self.infoTextField.stringValue = String("\(gView.dragLineArray[dlIndex].toolTip): \(gView.dragLineArray[dlIndex].intValue)")
                 }
             }
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(self.onGraphValueHasChanged(notification:)), name: .graphHasChangedValue, object: nil)
+        
         }
         setup()
     }
     
     deinit {
         kvoDragLineToken?.invalidate()
+        kvoDraggedValueToken?.invalidate()
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillAppear() {
@@ -78,6 +86,16 @@ class graphViewController: NSViewController, NSWindowDelegate {
     override func viewWillLayout() {
         //print("\(className) \(#function)")
         setup()
+    }
+    
+    // MARK: - IBActions
+    
+    @IBAction func saveButtonAction(_ sender:NSButton){
+        //
+    }
+    
+    @IBAction func abortButtonAction(_ sender:NSButton) {
+        close()
     }
     
     @IBAction func startStepsChanged(_ sender: NSPopUpButton) {
@@ -125,6 +143,40 @@ class graphViewController: NSViewController, NSWindowDelegate {
     // MARK: - Functional Implementation
     
     /**
+     * Received of View notification for graph value changes
+     */
+    @objc func onGraphValueHasChanged(notification: Notification) {
+        //print("\(className) \(#function)")
+        if let value = notification.userInfo?["index"] {
+            let index = value as! NSNumber
+            applyNewValue(index.intValue)
+        }
+    }
+    
+    private func applyNewValue(_ dragLineIndex: Int) {
+        let line = (view as! graphView).dragLineArray[dragLineIndex]
+        //print("\(className) \(#function) - \(line.toolTip) = \(line.intValue)")
+        let startTimeRange = NSMakeRange(0, 3)
+        let stopTimeRange = NSMakeRange(3, 3)
+        let startPowerRange = NSMakeRange(6, 3)
+        let stopPowerRange = NSMakeRange(9, 3)
+        
+        if startTimeRange.contains(dragLineIndex) {
+            startTime[dragLineIndex] = line.intValue
+        }
+        if stopTimeRange.contains(dragLineIndex) {
+            stopTime[dragLineIndex - stopTimeRange.location] = line.intValue
+            
+        }
+        if startPowerRange.contains(dragLineIndex) {
+            startPower[dragLineIndex - startPowerRange.location] = line.intValue
+        }
+        if stopPowerRange.contains(dragLineIndex) {
+            stopPower[dragLineIndex - stopPowerRange.location] = line.intValue
+        }
+    }
+    
+    /**
      * applies extra rules which are not contained within drag lines
      */
     func ruleCheck() {
@@ -137,6 +189,14 @@ class graphViewController: NSViewController, NSWindowDelegate {
                 //print("\(className) \(#function) - changed to \(horMax?.intValue)")
             }
         }
+        
+        /*
+        if let minValue = horMin?.intValue {
+            if stopPowerLines[3].intValue < minValue {
+                horMin?.intValue = stopPowerLines[3].intValue - 1
+            }
+        }
+         */
     }
     
     /**
@@ -178,8 +238,8 @@ class graphViewController: NSViewController, NSWindowDelegate {
         
         horMax = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 1.0, axisMax: 100, parentFrame: view.frame)
         horMin = dragLine(orientation: .horizontal, origin: .left, lengthFactor: 1.0, axisMax: 100, parentFrame: view.frame)
-        horMin!.intValue = 15
-        horMax!.intValue = 90
+        horMin!.intValue = minPower
+        horMax!.intValue = maxPower
         horMin!.lineColor = NSColor.systemRed
         horMax!.lineColor = NSColor.systemRed
         horMin!.toolTip = "Min Power"
@@ -225,7 +285,7 @@ class graphViewController: NSViewController, NSWindowDelegate {
             startTimeLines.append( dragLine(orientation: .vertical, origin: .bottom, lengthFactor: 1.0, axisMax: timeScale, parentFrame: view.frame) )
             startTimeLines[2].intValue = startTime[2] + startTime[1] + startTime[0]
             startTimeLines[2].maxValue = startTimeLines[1].maxValue
-            startTimeLines[2].toolTip = "start time 3"
+            startTimeLines[2].toolTip = "Start time 3"
             startTimeLines[1].maxValueDragLine = startTimeLines[2]
             startTimeLines[2].minValueDragLine = startTimeLines[1]
             startPowerLines.append( dragLine(orientation: .horizontal, origin: .left, lengthFactor: horLengthFactor, axisMax: 100, parentFrame: view.frame) )

@@ -311,6 +311,10 @@ class graphView: NSView {
             super.mouseDown(with: event)
             return
         }
+        // Notify value change
+        if draggedLineIndex != nil {
+            NotificationCenter.default.post(name: .graphHasChangedValue, object: self, userInfo: ["index":NSNumber(value: draggedLineIndex!) ])
+        }
         draggedLineIndex =  nil
         self.window?.invalidateCursorRects(for: self)   // will invoke resterCursorRects
     }
@@ -467,4 +471,7 @@ class graphView: NSView {
     
 }
 
-
+extension Notification.Name {
+    static let graphHasChangedValue = Notification.Name(
+       rawValue: "graphHasChangedValue")
+}
